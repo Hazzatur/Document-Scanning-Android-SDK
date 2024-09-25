@@ -50,8 +50,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginEnd="@dimen/zdc_medium_padding"
             android:layout_marginBottom="@dimen/zdc_medium_padding"
-            android:src="@drawable/zdc_gallery_icon"
-            android:visibility="gone"/>
+            android:src="@drawable/zdc_gallery_icon" />
 
         <View
             android:id="@+id/cameraCaptureButton"
