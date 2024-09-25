@@ -217,7 +217,7 @@ internal class CameraScreenFragment : BaseFragment(), ScanSurfaceListener {
         val photoPickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         photoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE)
         photoPickerIntent.type = "image/*"
-        //photoPickerIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+        photoPickerIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         resultLauncher.launch(photoPickerIntent)
     }
 
