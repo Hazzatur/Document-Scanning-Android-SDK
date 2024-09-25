@@ -42,13 +42,22 @@ import com.zynksoftware.documentscanner.model.DocumentScannerErrorModel
 import com.zynksoftware.documentscanner.ui.base.BaseFragment
 import com.zynksoftware.documentscanner.ui.components.scansurface.ScanSurfaceListener
 import com.zynksoftware.documentscanner.ui.scan.InternalScanActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
+
 
 
 internal class CameraScreenFragment : BaseFragment(), ScanSurfaceListener {
     private var _binding: FragmentCameraScreenBinding? = null
     private val binding get() = _binding!!
+
+    private val job = Job()  // Job to manage the coroutine scope
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + job)  // Create CoroutineScope
 
     companion object {
         private val TAG = CameraScreenFragment::class.simpleName
@@ -62,37 +71,7 @@ internal class CameraScreenFragment : BaseFragment(), ScanSurfaceListener {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 try {
-                    val imageUri = result?.data?.data
-                    if (imageUri != null) {
-                        val realPath = FileUriUtils.getRealPath(getScanActivity(), imageUri)
-                        if (realPath != null) {
-                            getScanActivity().reInitOriginalImageFile()
-                            getScanActivity().originalImageFile = File(realPath)
-                            startCroppingProcess()
-                        } else {
-                            Log.e(
-                                TAG,
-                                DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR.error
-                            )
-                            onError(
-                                DocumentScannerErrorModel(
-                                    DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR,
-                                    null
-                                )
-                            )
-                        }
-                    } else {
-                        Log.e(
-                            TAG,
-                            DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR.error
-                        )
-                        onError(
-                            DocumentScannerErrorModel(
-                                DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR,
-                                null
-                            )
-                        )
-                    }
+                    handleGalleryResult(result.data)
                 } catch (e: FileNotFoundException) {
                     Log.e(TAG, "FileNotFoundException", e)
                     onError(
@@ -134,6 +113,7 @@ internal class CameraScreenFragment : BaseFragment(), ScanSurfaceListener {
         if (getScanActivity().shouldCallOnClose) {
             getScanActivity().onClose()
         }
+        job.cancel()  // Cancel the job when the fragment is destroyed
     }
 
     override fun onResume() {
@@ -237,7 +217,40 @@ internal class CameraScreenFragment : BaseFragment(), ScanSurfaceListener {
         val photoPickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         photoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE)
         photoPickerIntent.type = "image/*"
+        //photoPickerIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         resultLauncher.launch(photoPickerIntent)
+    }
+
+    private fun handleGalleryResult(data: Intent?) {
+        val imageUri = data?.data
+        if (imageUri != null && isUriValid(imageUri)) {
+            coroutineScope.launch(Dispatchers.IO) {  // Use custom CoroutineScope
+                val realPath = FileUriUtils.getRealPath(getScanActivity(), imageUri)
+                withContext(Dispatchers.Main) {
+                    if (realPath != null) {
+                        getScanActivity().reInitOriginalImageFile()
+                        getScanActivity().originalImageFile = File(realPath)
+                        startCroppingProcess()
+                    } else {
+                        Log.e(TAG, DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR.error)
+                        onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR, null))
+                    }
+                }
+            }
+        } else {
+            Log.e(TAG, "Invalid URI or null URI")
+            onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR, null))
+        }
+    }
+
+    private fun isUriValid(uri: android.net.Uri): Boolean {
+        return try {
+            requireContext().contentResolver.openInputStream(uri)?.close()
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Invalid URI", e)
+            false
+        }
     }
 
     override fun scanSurfacePictureTaken() {
