@@ -217,41 +217,57 @@ internal class CameraScreenFragment : BaseFragment(), ScanSurfaceListener {
         val photoPickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         photoPickerIntent.addCategory(Intent.CATEGORY_OPENABLE)
         photoPickerIntent.type = "image/*"
-        photoPickerIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+        //photoPickerIntent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         resultLauncher.launch(photoPickerIntent)
     }
 
     private fun handleGalleryResult(data: Intent?) {
-        val imageUri = data?.data
-        if (imageUri != null && isUriValid(imageUri)) {
-            coroutineScope.launch(Dispatchers.IO) {  // Use custom CoroutineScope
-                val realPath = FileUriUtils.getRealPath(getScanActivity(), imageUri)
-                withContext(Dispatchers.Main) {
-                    if (realPath != null) {
-                        getScanActivity().reInitOriginalImageFile()
-                        getScanActivity().originalImageFile = File(realPath)
-                        startCroppingProcess()
-                    } else {
-                        Log.e(TAG, DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR.error)
+    val imageUri = data?.data
+    if (imageUri != null) {
+        coroutineScope.launch(Dispatchers.IO) {
+            try {
+                if (isUriValid(imageUri)) {
+                    val realPath = FileUriUtils.getRealPath(getScanActivity(), imageUri)
+                    withContext(Dispatchers.Main) {
+                        if (realPath != null) {
+                            getScanActivity().reInitOriginalImageFile()
+                            getScanActivity().originalImageFile = File(realPath)
+                            startCroppingProcess()
+                        } else {
+                            Log.e(TAG, DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR.error)
+                            onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR, null))
+                        }
+                    }
+                } else {
+                    Log.e(TAG, "Invalid URI or null URI")
+                    withContext(Dispatchers.Main) {
                         onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR, null))
                     }
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error accessing URI", e)
+                withContext(Dispatchers.Main) {
+                    onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR, e))
+                }
             }
-        } else {
-            Log.e(TAG, "Invalid URI or null URI")
-            onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR, null))
         }
+    } else {
+        Log.e(TAG, "Invalid URI or null URI")
+        onError(DocumentScannerErrorModel(DocumentScannerErrorModel.ErrorMessage.TAKE_IMAGE_FROM_GALLERY_ERROR, null))
     }
+}
 
-    private fun isUriValid(uri: android.net.Uri): Boolean {
-        return try {
-            requireContext().contentResolver.openInputStream(uri)?.close()
-            true
-        } catch (e: Exception) {
-            Log.e(TAG, "Invalid URI", e)
-            false
-        }
+
+ private suspend fun isUriValid(uri: android.net.Uri): Boolean = withContext(Dispatchers.IO) {
+    return@withContext try {
+        requireContext().contentResolver.openInputStream(uri)?.close()
+        true
+    } catch (e: Exception) {
+        Log.e(TAG, "Invalid URI", e)
+        false
     }
+}
+
 
     override fun scanSurfacePictureTaken() {
         startCroppingProcess()
