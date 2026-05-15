@@ -32,6 +32,36 @@
             android:layout_height="match_parent"
             android:visibility="gone" />
 
+        <FrameLayout
+            android:id="@+id/zoomPreviewContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/black"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/zoomPreviewImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/preview_image"
+                android:scaleType="fitXY" />
+
+            <View
+                android:id="@+id/zoomPreviewCrosshairVertical"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@android:color/white" />
+
+            <View
+                android:id="@+id/zoomPreviewCrosshairHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_gravity="center"
+                android:background="@android:color/white" />
+
+        </FrameLayout>
+
     </FrameLayout>
 
     <RelativeLayout

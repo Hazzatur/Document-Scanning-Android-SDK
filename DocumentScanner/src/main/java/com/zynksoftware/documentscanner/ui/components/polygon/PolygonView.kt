@@ -39,6 +39,8 @@ internal class PolygonView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
+    var onCornerTouchEvent: ((action: Int, rawX: Float, rawY: Float) -> Unit)? = null
+
     var paint: Paint = Paint()
     private var pointer1: ImageView
     private var pointer2: ImageView
@@ -185,5 +187,9 @@ internal class PolygonView @JvmOverloads constructor(
         imageView.x = x.toFloat()
         imageView.y = y.toFloat()
         return imageView
+    }
+
+    fun dispatchCornerTouchEvent(action: Int, rawX: Float, rawY: Float) {
+        onCornerTouchEvent?.invoke(action, rawX, rawY)
     }
 }
