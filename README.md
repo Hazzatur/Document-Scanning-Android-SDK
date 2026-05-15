@@ -51,7 +51,7 @@ in app build.gradle:
 	
 	dependencies {
       ...
-      implementation("com.github.Hazzatur:Document-Scanning-Android-SDK:1.2.3")
+      implementation("com.github.Hazzatur:Document-Scanning-Android-SDK:1.3.0")
 	}
 
 ### Usage
