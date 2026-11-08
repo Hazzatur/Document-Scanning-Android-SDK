@@ -14,10 +14,11 @@ of [OpenCV](https://opencv.org).
 
 ### Features
 
-- tiny version of OpenCV **4.11.0**:
-    - arm64-v8a: **7.6 MB** (original: 21.6 MB)
+- tiny version of OpenCV **4.11.0**, built from source by
+  [Tiny-OpenCV](https://github.com/Hazzatur/Tiny-OpenCV) (no prebuilt binaries):
+    - arm64-v8a: **7.5 MB** (original: 21.6 MB)
     - armeabi-v7a: **5.0 MB** (original: 14.8 MB)
-    - x86: **9.4 MB** (original: 39.5 MB)
+    - x86: **9.0 MB** (original: 39.5 MB)
     - x86_64: **10.7 MB** (original: 53.2 MB)
 - live detection (also detect rectangle with one bent angle)
 - auto scan and flash support
@@ -26,7 +27,7 @@ of [OpenCV](https://opencv.org).
 
 ## Getting started
 
-**Document Scanner**  is supported on Android devices starting from **SDK 23 (Marshmallow)**.
+**Document Scanner**  is supported on Android devices starting from **SDK 26 (Oreo)**.
 
 ### Installation
 
@@ -161,6 +162,9 @@ All errors are returned to app using `fun onError(error: DocumentScannerErrorMod
   and [hannesa2](https://github.com/hannesa2/LiveEdgeDetection)
 
 ## License
+
+MIT, see [LICENSE](LICENSE). OpenCV is licensed under Apache-2.0; see the
+[Tiny-OpenCV notices](https://github.com/Hazzatur/Tiny-OpenCV/blob/master/NOTICE.md).
 
 	Copyright 2020 ZynkSoftware SRL
 
