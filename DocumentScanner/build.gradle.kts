@@ -85,7 +85,7 @@ dependencies {
     implementation(libs.exifinterface)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.compressor)
-    implementation(libs.androidx.test.monitor)
+    androidTestImplementation(libs.androidx.test.monitor)
     testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.junit.jupiter)
 }
