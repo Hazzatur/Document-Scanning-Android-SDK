@@ -9,7 +9,7 @@ androidx-core-ktx = "androidx.core:core-ktx:1.15.0"
 androidx-appcompat = "androidx.appcompat:appcompat:1.7.0"
 androidx-activity = "androidx.activity:activity-ktx:1.10.0"
 rxandroid = "io.reactivex.rxjava3:rxandroid:3.0.0"
-tiny-opencv = "com.github.Hazzatur:Tiny-OpenCV:4.11.0-2"
+tiny-opencv = "com.github.Hazzatur:Tiny-OpenCV:4.11.0-4"
 camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camera" }
 camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camera" }
 camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camera" }
